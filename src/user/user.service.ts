@@ -1,9 +1,12 @@
 import { Injectable, NotFoundException, Post } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
-import { UserDTO } from 'src/dto/user.dto';
 import { UserEntity } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
+
+import * as bcrypt from 'bcryptjs';
+import { UserDTO } from 'src/dto/users/user.dto';
+
 
 @Injectable()
 export class UserService {
@@ -18,6 +21,9 @@ export class UserService {
         if(userdto.password.length < 6){
             throw new NotFoundException(`Password phai tren 6 ky tu`);
         }
+        const salt = await bcrypt.genSalt();
+        const hashedPassword = await bcrypt.hash(userdto.password, salt);
+        userdto.password  = hashedPassword;
         return await this.userRepo.save(userdto);
     }    
 
@@ -34,17 +40,9 @@ export class UserService {
         return indexCheckid
     }
 
-    // async findByEmail (email: string): Promise<UserDTO>{
-    //     const user = await this.userRepo
-    //     .createQueryBuilder('user')
-    //     .where('user.email = :email', { email })
-    //     .getOne();
-    
-    //     if (!user) {
-    //         throw new NotFoundException(`Người dùng với tên: ${email} không tồn tại`);
-    //     }
-    //     return user;
-    // }
+    async findByEmail (email: string): Promise<UserDTO>{
+        return this.userRepo.findOneBy({email});
+    }
 
     async update(id: number, userdto: UserDTO): Promise<UserDTO>{
         const indexCheckid = await this.findByid(id);

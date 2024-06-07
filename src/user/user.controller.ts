@@ -1,28 +1,35 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UserDTO } from 'src/dto/user.dto';
-import { UserEntity } from 'src/entity/user.entity';
 import { query } from 'express';
+import { LoggingInterceptor } from 'src/interceptors/logging.interceptor';
+import { AuthGuard } from 'src/guards/auth.guard';
+import { UserDTO } from 'src/dto/users/user.dto';
+import { AuthService } from './auth.service';
+import { LoginDTO } from 'src/dto/users/login.dto';
 
-@Controller('/users')
+@Controller('/api/user')
+@UseInterceptors(ClassSerializerInterceptor)
+@UseInterceptors(LoggingInterceptor)
 export class UserController {
     constructor(
         private readonly userService: UserService,
+        private readonly authService: AuthService,
     ){}
 
-    @Post()
-    CreateUser(@Body() userdto: UserDTO): Promise<UserDTO>{
-        return  this.userService.create(userdto);
-    }
+    // @Post()
+    // CreateUser(@Body() userdto: UserDTO): Promise<UserDTO>{
+    //     return  this.userService.create(userdto);
+    // }
 
     @Get()
+    @UseGuards(AuthGuard)
     FindAll(): Promise<UserDTO[]>{
+        console.log('Second');
         return  this.userService.findall();
     }
 
     @Get(':id')
     FindById(@Param('id',ParseIntPipe) id: number): Promise<UserDTO>{
-        console.log(typeof(id));
         return  this.userService.findByid(id);
     }
 
@@ -39,5 +46,14 @@ export class UserController {
     @Delete(':id')
     Delete(@Param('id',ParseIntPipe) id: number): Promise<boolean>{
         return this.userService.delete(id);
+    }
+
+    @Post('register')
+    registerUser(@Body() userdto: UserDTO){
+        return this.authService.registerUser(userdto);
+    }
+    @Post('login')
+    login(@Body() logindto: LoginDTO){
+        return this.authService.loginUser(logindto);
     }
 }
