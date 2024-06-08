@@ -9,9 +9,7 @@ export class AuthGuard implements CanActivate {
         private readonly jwtService: JwtService,
         private readonly userService: UserService
     ){}
-    async canActivate(
-        context: ExecutionContext,
-    ): Promise<boolean> {
+    async canActivate(context: ExecutionContext,): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
         console.log("Guard")
         // 1) Get token from header
@@ -32,7 +30,7 @@ export class AuthGuard implements CanActivate {
             // 4) Assign user to request object
             request.currentUser = user;
         } catch{
-            throw new ForbiddenException("Please provide access token");ç
+            throw new ForbiddenException("Please provide access token");
         }
         return true
     }
