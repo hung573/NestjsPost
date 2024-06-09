@@ -1,6 +1,8 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { UserEntity } from "./user.entity";
+import { Transform } from "class-transformer";
 
-@Entity()
+@Entity('post')
 export class PostEntity{
     @PrimaryGeneratedColumn()
     id: number;
@@ -14,4 +16,7 @@ export class PostEntity{
     @Column()
     @UpdateDateColumn()
     updateAt: Date;
+    @ManyToOne(()=> UserEntity, (user) => user.posts)
+    @Transform(({obj}) => obj.user.id)
+    user: UserEntity;
 }

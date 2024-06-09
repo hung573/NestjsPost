@@ -6,6 +6,7 @@ import { UserModule } from './user/user.module';
 import { UserEntity } from './entity/user.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PostModule } from './post/post.module';
+import { PostEntity } from './entity/post.entity';
 
 @Module({
   imports:
@@ -20,7 +21,7 @@ import { PostModule } from './post/post.module';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        entities: [UserEntity],
+        entities: [UserEntity, PostEntity],
         synchronize: true,
       }),
       inject: [ConfigService],
