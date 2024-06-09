@@ -16,7 +16,8 @@ export class PostEntity{
     @Column()
     @UpdateDateColumn()
     updateAt: Date;
-    @ManyToOne(()=> UserEntity, (user) => user.posts)
+
+    @ManyToOne(()=> UserEntity, (user) => user.posts,{ eager: true })
     @Transform(({obj}) => obj.user.id)
     user: UserEntity;
 }
