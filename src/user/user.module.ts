@@ -3,7 +3,6 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from 'src/entity/user.entity';
-import { LoggerMiddleware } from 'src/middlewares/logger.middleware';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 
@@ -18,10 +17,11 @@ import { JwtModule } from '@nestjs/jwt';
   providers: [UserService,AuthService],
   controllers: [UserController]
 })
-export class UserModule implements NestModule{
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(LoggerMiddleware)
-      .forRoutes('*');
-  }
-}
+export class UserModule {}
+// export class UserModule implements NestModule{
+//   configure(consumer: MiddlewareConsumer) {
+//     consumer
+//       .apply(LoggerMiddleware)
+//       .forRoutes('*');
+//   }
+// }

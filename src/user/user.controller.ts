@@ -1,17 +1,16 @@
 import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, Request, UseGuards, UseInterceptors } from '@nestjs/common';
 import { UserService } from './user.service';
 import { query } from 'express';
-import { LoggingInterceptor } from 'src/interceptors/logging.interceptor';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { UserDTO } from 'src/dto/users/user.dto';
 import { AuthService } from './auth.service';
 import { LoginDTO } from 'src/dto/users/login.dto';
 import { CurrentUser } from './decorator/currentUser.decorator';
 import { UserEntity } from 'src/entity/user.entity';
+import { RoleGuard } from 'src/guards/role.guard';
 
 @Controller('/api/user')
 @UseInterceptors(ClassSerializerInterceptor)
-@UseInterceptors(LoggingInterceptor)
 export class UserController {
     constructor(
         private readonly userService: UserService,
@@ -24,9 +23,9 @@ export class UserController {
     // }
 
     @Get()
-    @UseGuards(AuthGuard)
+    @UseGuards(new RoleGuard(['admin','mod'])) // duoc thuc hien sau
+    @UseGuards(AuthGuard) // duoc thuc hien truoc
     FindAll(): Promise<UserDTO[]>{
-        console.log('Second');
         return  this.userService.findall();
     }
 
@@ -37,19 +36,24 @@ export class UserController {
     }
 
     @Get(':id')
+    @UseGuards(new RoleGuard(['admin','mod']))
     @UseGuards(AuthGuard)
     FindById(@Param('id',ParseIntPipe) id: number): Promise<UserDTO>{
         return  this.userService.findByid(id);
     }
 
     @Put(':id')
-    Update(@Param('id',ParseIntPipe) id: number, @Body() userdto: UserDTO): Promise<UserDTO>{
-        return this.userService.update(id,userdto);
+    @UseGuards(new RoleGuard(['admin','user','mod'])) // duoc thuc hien sau
+    @UseGuards(AuthGuard)
+    Update(@Param('id',ParseIntPipe) id: number, @Body() userdto: UserDTO,@CurrentUser() currentUser: UserEntity): Promise<UserDTO>{
+        return this.userService.update(id,userdto,currentUser);
     }
 
     @Delete(':id')
-    Delete(@Param('id',ParseIntPipe) id: number): Promise<boolean>{
-        return this.userService.delete(id);
+    @UseGuards(new RoleGuard(['admin','user','mod'])) // duoc thuc hien sau
+    @UseGuards(AuthGuard)
+    Delete(@Param('id',ParseIntPipe) id: number, @CurrentUser() currentUser: UserEntity): Promise<boolean>{
+        return this.userService.delete(id,currentUser);
     }
 
     @Post('register')
@@ -61,7 +65,5 @@ export class UserController {
     login(@Body() logindto: LoginDTO){
         return this.authService.loginUser(logindto);
     }
-
-    
 
 }

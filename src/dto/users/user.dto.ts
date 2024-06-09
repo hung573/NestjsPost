@@ -1,10 +1,7 @@
 import { Expose } from "class-transformer";
 import { IsEmail, IsNotEmpty } from "class-validator";
-enum ROLES{
-    ADMIN = 'ADMIN',
-    MOT = 'MOT',
-    USER = 'USER'
-}
+import { ROLES } from "src/entity/user.entity";
+
 export class UserDTO{
     @Expose()
     id: number;
